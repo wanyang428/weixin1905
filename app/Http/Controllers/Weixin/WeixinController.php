@@ -67,33 +67,23 @@ class WeixinController extends Controller
                ];
                $u = WxUserModel::where(['openid' => $oppenid])->first();
                if ($u) {
-                   echo "欢迎回来";
+                   $this->huifu($xml_obj,3);
                    die;
                } else {
                    //入库
                    $uid = WxUserModel::insertGetId($user_data);
-                   echo "欢迎关注";
+                   $this->huifu($xml_obj,2);
                    die;
                }
 
 
 
            }
-           $msg_type = $xml_obj->MsgType;
 
-           $touser = $xml_obj->FromUserName;  //接受用户的oppenid
-           $fromuser = $xml_obj->ToUserName;   //开发者公众号的id
-           $time = time();
+           $msg_type = $xml_obj->MsgType;
            if ($msg_type == 'text') {
-               $content = date('Y-m-d H:i:s') . "   " . $xml_obj->Content;
-               $response_text = '<xml>
-  <ToUserName><![CDATA[' . $touser . ']]></ToUserName>
-  <FromUserName><![CDATA[' . $fromuser . ']]></FromUserName>
-  <CreateTime>' . $time . '</CreateTime>
-  <MsgType><![CDATA[text]]></MsgType>
-  <Content><![CDATA[' . $content . ']]></Content>
-</xml>';
-               echo $response_text;            // 回复用户消息
+               $this->huifu($xml_obj,1);die;
+
            }
        }
     }
@@ -109,5 +99,31 @@ class WeixinController extends Controller
         file_put_contents($log_file,$json_str,FILE_APPEND);
     }
 
+
+     //给用户发送消息
+    public  function  huifu($xml_obj,$code){
+        $time = time();
+        $touser = $xml_obj->FromUserName;  //接受用户的oppenid
+        $fromuser = $xml_obj->ToUserName;   //开发者公众号的id
+
+        if($code==1){
+            $content = date('Y-m-d H:i:s') . "   " . $xml_obj->Content;
+        }elseif($code==2){
+            $content = date('Y-m-d H:i:s') . "   " . "欢迎关注";
+        }elseif($code==3){
+            $content = date('Y-m-d H:i:s') . "   " . "欢迎回来";
+
+        }
+
+        $response_text = '<xml>
+  <ToUserName><![CDATA[' . $touser . ']]></ToUserName>
+  <FromUserName><![CDATA[' . $fromuser . ']]></FromUserName>
+  <CreateTime>' . $time . '</CreateTime>
+  <MsgType><![CDATA[text]]></MsgType>
+  <Content><![CDATA[' . $content . ']]></Content>
+</xml>';
+        echo $response_text;            // 回复用户消息
+
+    }
 
 }
