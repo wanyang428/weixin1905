@@ -68,16 +68,11 @@ class WeixinController extends Controller
                $u = WxUserModel::where(['openid' => $oppenid])->first();
                if ($u) {
                    $this->huifu($xml_obj,3);
-                   die;
                } else {
                    //入库
                    $uid = WxUserModel::insertGetId($user_data);
                    $this->huifu($xml_obj,2);
-                   die;
                }
-
-
-
            }
 
            $msg_type = $xml_obj->MsgType;
@@ -112,7 +107,6 @@ class WeixinController extends Controller
             $content = date('Y-m-d H:i:s') . "   " . "欢迎关注";
         }elseif($code==3){
             $content = date('Y-m-d H:i:s') . "   " . "欢迎回来";
-
         }
 
         $response_text = '<xml>
