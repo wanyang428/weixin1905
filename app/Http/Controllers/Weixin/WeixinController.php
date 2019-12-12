@@ -75,12 +75,13 @@ class WeixinController extends Controller
                }
            }
 
-           $msg_type = $xml_obj->MsgType;
-           if ($msg_type == 'text') {
-               $this->huifu($xml_obj,1);
-
-           }
        }
+
+        $msg_type = $xml_obj->MsgType;
+        if ($msg_type == 'text') {
+            $this->huifu($xml_obj,1);
+
+        }
     }
 
     /**
