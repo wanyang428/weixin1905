@@ -179,3 +179,28 @@
 <MsgId>22564467433074990</MsgId>
 </xml>
 >>>>>>> 71eaece52024e5438caa346d9a3fc79d96ccfe01
+2019-12-12 08:27:20<xml><ToUserName><![CDATA[gh_b139d6775954]]></ToUserName>
+<FromUserName><![CDATA[o6HNJuBSxwuk-51-3jVlKGYsGZ5E]]></FromUserName>
+<CreateTime>1576110440</CreateTime>
+<MsgType><![CDATA[text]]></MsgType>
+<Content><![CDATA[1]]></Content>
+<MsgId>22564477092488487</MsgId>
+</xml>2019-12-12 08:27:25<xml><ToUserName><![CDATA[gh_b139d6775954]]></ToUserName>
+<FromUserName><![CDATA[o6HNJuBSxwuk-51-3jVlKGYsGZ5E]]></FromUserName>
+<CreateTime>1576110445</CreateTime>
+<MsgType><![CDATA[event]]></MsgType>
+<Event><![CDATA[unsubscribe]]></Event>
+<EventKey><![CDATA[]]></EventKey>
+</xml>2019-12-12 08:27:26<xml><ToUserName><![CDATA[gh_b139d6775954]]></ToUserName>
+<FromUserName><![CDATA[o6HNJuBSxwuk-51-3jVlKGYsGZ5E]]></FromUserName>
+<CreateTime>1576110445</CreateTime>
+<MsgType><![CDATA[event]]></MsgType>
+<Event><![CDATA[subscribe]]></Event>
+<EventKey><![CDATA[]]></EventKey>
+</xml>2019-12-12 08:37:42<xml><ToUserName><![CDATA[gh_b139d6775954]]></ToUserName>
+<FromUserName><![CDATA[o6HNJuBSxwuk-51-3jVlKGYsGZ5E]]></FromUserName>
+<CreateTime>1576058259</CreateTime>
+<MsgType><![CDATA[event]]></MsgType>
+<Event><![CDATA[subscribe]]></Event>
+<EventKey><![CDATA[]]></EventKey>
+</xml>
