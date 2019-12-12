@@ -57,6 +57,14 @@ class WeixinController extends Controller
         file_put_contents($log_file,$data,FILE_APPEND);         //追加写
         //处理xml数据
         $xml_obj = simplexml_load_string($xml_str);
+        //获取TOKEN
+        $access_token=$this->GetAccessToken();
+        //调用微信用户信息
+        $yonghu=$this->getUserInfo($access_token,$xml_obj->FromUserName);
+       //转换用户信息
+        $userInfo=json_decode($yonghu,true);
+        //打印用户信息
+//        dd($userInfo);
        if($xml_obj->MsgType=='event') {
            $event = $xml_obj->Event;  //获取事件7类型 是不是关注
            if ($event == 'subscribe') {
@@ -64,14 +72,16 @@ class WeixinController extends Controller
                $user_data = [
                    'openid' => $oppenid,
                    'sub_time' => $xml_obj->CreateTime,
+                   'nickname' =>$userInfo['nickname'],
+                   'sex' =>$userInfo['sex']
                ];
                $u = WxUserModel::where(['openid' => $oppenid])->first();
                if ($u) {
-                   $this->huifu($xml_obj,3);
+                   $this->huifu($xml_obj,3,$userInfo['nickname']);
                } else {
                    //入库
                    $uid = WxUserModel::insertGetId($user_data);
-                   $this->huifu($xml_obj,2);
+                   $this->huifu($xml_obj,2,$userInfo['nickname']);
                }
            }
 
@@ -79,7 +89,7 @@ class WeixinController extends Controller
 
         $msg_type = $xml_obj->MsgType;
         if ($msg_type == 'text') {
-            $this->huifu($xml_obj,1);
+            $this->huifu($xml_obj,1,$userInfo['nickname']);
 
         }
     }
@@ -93,21 +103,22 @@ class WeixinController extends Controller
         $json_str = file_get_contents($url);
         $log_file = 'wx.user.log';
         file_put_contents($log_file,$json_str,FILE_APPEND);
+        return $json_str;
     }
 
 
      //给用户发送消息
-    public  function  huifu($xml_obj,$code){
+    public  function  huifu($xml_obj,$code,$nickname){
         $time = time();
         $touser = $xml_obj->FromUserName;  //接受用户的oppenid
         $fromuser = $xml_obj->ToUserName;   //开发者公众号的id
 
         if($code==1){
-            $content = date('Y-m-d H:i:s') . "   " . $xml_obj->Content;
+            $content = "您好". $nickname .date('Y-m-d H:i:s') . "   " . $xml_obj->Content;
         }elseif($code==2){
-            $content = date('Y-m-d H:i:s') . "   " . "欢迎关注";
+            $content ="您好". $nickname .date('Y-m-d H:i:s') . "   " . "欢迎关注";
         }elseif($code==3){
-            $content = date('Y-m-d H:i:s') . "   " . "欢迎回来";
+            $content = "您好". $nickname .date('Y-m-d H:i:s') . "   " . "欢迎回来";
         }
 
         $response_text = '<xml>
