@@ -114,11 +114,11 @@ class WeixinController extends Controller
         $fromuser = $xml_obj->ToUserName;   //开发者公众号的id
 
         if($code==1){
-            $content = "您好". $nickname .date('Y-m-d H:i:s') . "   " . $xml_obj->Content;
+            $content = "您好 ".$nickname . " 现在北京时间".date('Y-m-d H:i:s') . "   " . $xml_obj->Content;
         }elseif($code==2){
-            $content ="您好". $nickname .date('Y-m-d H:i:s') . "   " . "欢迎关注";
+            $content ="您好 ". $nickname ." 现在北京时间".date('Y-m-d H:i:s') . "   " . "欢迎关注";
         }elseif($code==3){
-            $content = "您好". $nickname .date('Y-m-d H:i:s') . "   " . "欢迎回来";
+            $content = "您好 ". $nickname ." 现在北京时间".date('Y-m-d H:i:s') . "   " . "欢迎回来";
         }
 
         $response_text = '<xml>
