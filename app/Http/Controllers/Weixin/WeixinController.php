@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Weixin;
 
 use App\Http\Controllers\Controller;
 use App\Model\WxUserModel;
-use Illuminate\Contracts\Redis;
+use Illuminate\Support\Facades\Redis;
 use Illuminate\Http\Request;
 
 class WeixinController extends Controller
@@ -19,12 +19,11 @@ class WeixinController extends Controller
 
     public function GetAccessToken(){
         $keys="wx_access_token";
-        $access_tooken=Redis::get($keys);
-        if($access_tooken){
-            return $access_tooken;
+        $access_token=Redis::get($keys);
+        if($access_token){
+            return $access_token;
         }
         $url = 'https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid='.env('WX_APPID').'&secret='.env('WX_APPSECREET');
-
         $data_json = file_get_contents($url);
         $arr = json_decode($data_json,true);
         Redis::set($keys,$arr['access_token']);
