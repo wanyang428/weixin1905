@@ -18,3 +18,4 @@ Route::get('/', function () {
 
 Route::get('/wx','Weixin\WeixinController@wx');
 Route::post('/wx','Weixin\WeixinController@receiv');
+Route::get('/wx/picture','Weixin\WeixinController@picture');

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Weixin;
 
 use App\Http\Controllers\Controller;
 use App\Model\WxUserModel;
+use Illuminate\Contracts\Redis;
 use Illuminate\Http\Request;
 
 class WeixinController extends Controller
@@ -17,9 +18,17 @@ class WeixinController extends Controller
     }
 
     public function GetAccessToken(){
+        $keys="wx_access_token";
+        $access_tooken=Redis::get($keys);
+        if($access_tooken){
+            return $access_tooken;
+        }
         $url = 'https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid='.env('WX_APPID').'&secret='.env('WX_APPSECREET');
+
         $data_json = file_get_contents($url);
         $arr = json_decode($data_json,true);
+        Redis::set($keys,$arr['access_token']);
+        Redis::expire($keys,3600);
         return $arr['access_token'];
     }
 
@@ -105,8 +114,6 @@ class WeixinController extends Controller
         file_put_contents($log_file,$json_str,FILE_APPEND);
         return $json_str;
     }
-
-
      //给用户发送消息
     public  function  huifu($xml_obj,$code,$nickname){
         $time = time();
@@ -129,6 +136,19 @@ class WeixinController extends Controller
   <Content><![CDATA[' . $content . ']]></Content>
 </xml>';
         echo $response_text;            // 回复用户消息
+
+    }
+
+    //微信下载图片
+    public  function  picture(){
+        $media_id="lnUIXkKd61X0W71rXf3xPeQFWWiA-qae-JZO4yF93xKEOkb-jQUQMTP32PiM2niP";
+        $access_token=$this->GetAccessToken();
+        $url="https://api.weixin.qq.com/cgi-bin/media/get?access_token=$access_token&media_id=$media_id";
+         //下载图片
+        $img= file_get_contents($url);
+        //保存图片
+        file_put_contents('cat.jpg',$img);
+
 
     }
 
