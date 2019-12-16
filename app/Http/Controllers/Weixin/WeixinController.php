@@ -11,54 +11,55 @@ use GuzzleHttp\Client;
 
 class WeixinController extends Controller
 {
-        protected $access_token;
+    protected $access_token;
 
-             //获取token
-        public function __construct()
-        {
+    //获取token
+    public function __construct()
+    {
         //获取sccess_token
         $this->access_token = $this->GetAccessToken();
-        }
-        public function GetAccessToken(){
-        $keys="wx_access_token";
-        $access_token=Redis::get($keys);
-        if($access_token){
+    }
+    public function GetAccessToken()
+    {
+        $keys = "wx_access_token";
+        $access_token = Redis::get($keys);
+        if ($access_token) {
             return $access_token;
         }
-        $url = 'https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid='.env('WX_APPID').'&secret='.env('WX_APPSECREET');
+        $url = 'https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=' . env('WX_APPID') . '&secret=' . env('WX_APPSECREET');
         $data_json = file_get_contents($url);
-        $arr = json_decode($data_json,true);
-        Redis::set($keys,$arr['access_token']);
-        Redis::expire($keys,3600);
+        $arr = json_decode($data_json, true);
+        Redis::set($keys, $arr['access_token']);
+        Redis::expire($keys, 3600);
         return $arr['access_token'];
-        }
+    }
 
-             //接入微信
-        public function wx(){
-        $token='90d162aa1f38ee74a8a7041bd2201ba4';
+    //接入微信
+    public function wx()
+    {
+        $token = '90d162aa1f38ee74a8a7041bd2201ba4';
         $signature = $_GET["signature"];
         $timestamp = $_GET["timestamp"];
         $nonce = $_GET["nonce"];
-        $echostr=$_GET['echostr'];
+        $echostr = $_GET['echostr'];
 
         $tmpArr = array($token, $timestamp, $nonce);
         sort($tmpArr, SORT_STRING);
-        $tmpStr = implode( $tmpArr );
-        $tmpStr = sha1( $tmpStr );
+        $tmpStr = implode($tmpArr);
+        $tmpStr = sha1($tmpStr);
 
 
-
-        if($tmpStr == $signature){
+        if ($tmpStr == $signature) {
             echo $echostr;
-        }else{
+        } else {
             die('not ok');
         }
 
-        }
+    }
 
-            //接收微信推送事件
-        public function receiv()
-        {
+    //接收微信推送事件
+    public function receiv()
+    {
         $log_file = 'wx.log';
         $xml_str = file_get_contents("php://input");
         //将接收的数据记录到日志文件
@@ -97,115 +98,90 @@ class WeixinController extends Controller
         } elseif ($xml_obj->MsgType == 'image') {
             $media_id = $xml_obj->MediaId;
             $openid = $xml_obj->FromUserName;
-        //            dd($media_id);die;
+            //            dd($media_id);die;
             $res = $this->picture($media_id, $openid);
             if ($res) {
-                $this->huifu($xml_obj, 4, $userInfo['nickname']);
+                $this->huifu($xml_obj, 4, $userInfo['nickname'],$res);
             }
             //判断格式视频
         } elseif ($xml_obj->MsgType == 'video') {
-                    $media_id = $xml_obj->MediaId;
-                    $openid = $xml_obj->FromUserName;
-                //            dd($media_id);die;
-                    $res = $this->video($media_id, $openid);
-                if ($res) {
-                    $this->huifu($xml_obj, 4, $userInfo['nickname']);
-                }
+            $media_id = $xml_obj->MediaId;
+            $openid = $xml_obj->FromUserName;
+            //            dd($media_id);die;
+            $res = $this->video($media_id, $openid);
+            if ($res) {
+                $this->huifu($xml_obj, 4, $userInfo['nickname'],$res);
+            }
             //语言消息
-        }elseif ($xml_obj->MsgType == 'voice') {
+        } elseif ($xml_obj->MsgType == 'voice') {
             $media_id = $xml_obj->MediaId;
             $openid = $xml_obj->FromUserName;
             //            dd($media_id);die;
             $res = $this->voice($media_id, $openid);
             if ($res) {
-                $this->huifu($xml_obj, 4, $userInfo['nickname']);
+                $this->huifu($xml_obj, 4, $userInfo['nickname'],$res);
             }
 
             //文字消息
-        }elseif ($xml_obj->MsgType== 'text') {
+        } elseif ($xml_obj->MsgType == 'text') {
 
-        $this->huifu($xml_obj, 1, $userInfo['nickname']);
-
-        }
-
-            $msg_type = $xml_obj->MsgType;
-
+            $this->huifu($xml_obj, 1, $userInfo['nickname']);
 
         }
-            //获取用户基本信息
-        public   function getUserInfo($access_token, $openid)
-        {
-            $url = 'https://api.weixin.qq.com/cgi-bin/user/info?access_token=' . $access_token . '&openid=' . $openid . '&lang=zh_CN';
-            //发送网络请求
-            $json_str = file_get_contents($url);
-            $log_file = 'wx.user.log';
-            file_put_contents($log_file, $json_str, FILE_APPEND);
-            return $json_str;
+
+
+    }
+
+    //获取用户基本信息
+    public function getUserInfo($access_token, $openid)
+    {
+        $url = 'https://api.weixin.qq.com/cgi-bin/user/info?access_token=' . $access_token . '&openid=' . $openid . '&lang=zh_CN';
+        //发送网络请求
+        $json_str = file_get_contents($url);
+        $log_file = 'wx.user.log';
+        file_put_contents($log_file, $json_str, FILE_APPEND);
+        return $json_str;
+    }
+
+    //给用户发送消息
+    public function huifu($xml_obj, $code, $nickname,$res)
+    {
+        $time = time();
+        $touser = $xml_obj->FromUserName;  //接受用户的openid
+        $fromuser = $xml_obj->ToUserName;   //开发者公众号的id
+
+        if ($code == 1) {
+            $content = "您好 " . $nickname . " 现在北京时间" . date('Y-m-d H:i:s') . "   " . $xml_obj->Content;
+        } elseif ($code == 2) {
+            $content = "您好 " . $nickname . " 现在北京时间" . date('Y-m-d H:i:s') . "   \n" . "欢迎关注";
+        }elseif ($code == 3) {
+            $content = "您好 " . $nickname . " 现在北京时间" . date('Y-m-d H:i:s') . "   \n" . "欢迎回来";
+        } elseif ($code == 4) {
+            $content = "您好 " . $nickname . " 现在北京时间" . date('Y-m-d H:i:s') . "   保存成功\n查看路径:" . "$res";
         }
-            //给用户发送消息
-        public  function huifu($xml_obj, $code, $nickname)
-        {
-            $time = time();
-            $touser = $xml_obj->FromUserName;  //接受用户的openid
-            $fromuser = $xml_obj->ToUserName;   //开发者公众号的id
 
-            if ($code == 1) {
-                $content = "您好 " . $nickname . " 现在北京时间" . date('Y-m-d H:i:s') . "   " . $xml_obj->Content;
-            } elseif ($code == 2) {
-                $content = "您好 " . $nickname . " 现在北京时间" . date('Y-m-d H:i:s') . "   " . "欢迎关注";
-            } elseif ($code == 3) {
-                $content = "您好 " . $nickname . " 现在北京时间" . date('Y-m-d H:i:s') . "   " . "欢迎回来";
-            } elseif ($code == 3) {
-                $content = "您好 " . $nickname . " 现在北京时间" . date('Y-m-d H:i:s') . "   " . "欢迎回来";
-            } elseif ($code == 4) {
-                $content = "您好 " . $nickname . " 现在北京时间" . date('Y-m-d H:i:s') . "   " . "保存成功";
-            }
-
-            $response_text = '<xml>
+        $response_text = '<xml>
               <ToUserName><![CDATA[' . $touser . ']]></ToUserName>
               <FromUserName><![CDATA[' . $fromuser . ']]></FromUserName>
               <CreateTime>' . $time . '</CreateTime>
               <MsgType><![CDATA[text]]></MsgType>
               <Content><![CDATA[' . $content . ']]></Content>
             </xml>';
-            echo $response_text;            // 回复用户消息
-        }
-            //获取文件后辍
-        public  function fromat($media_id)
-        {
-            $client = new Client();
-            $url = 'https://api.weixin.qq.com/cgi-bin/media/get?access_token=' . $this->access_token . '&media_id=' . $media_id;
-            $format = $client->request('GET', $url)->getHeader('Content-disposition')[0];
-            $format = trim(substr($format, strpos($format, '.') + 1), '\"');
-            return '.' . $format;
-        }
-             //微信下载图片
-        public    function picture($media_id, $openid)
-        {
-            $access_token = $this->GetAccessToken();
-            $url = "https://api.weixin.qq.com/cgi-bin/media/get?access_token=$access_token&media_id=$media_id";
-            //下载图片
-            $img = file_get_contents($url);
-            //图片名称
-            $name = $this->fromat($media_id);
-            $name = date('YmdHis') . rand(10000, 99999) . $name;
-            //
+        echo $response_text;            // 回复用户消息
+    }
 
-            //保存图片
-            $time = date('Ymd');
-            $wenjian = 'ziliao/image/' . $time . '/' . $openid . '/';
-            if (!is_dir($wenjian)) {
-                $res = mkdir($wenjian, 0777, true);
-            }
-            file_put_contents($wenjian . '/' . $name, $img);
-            return "下载成功";
+    //获取文件后辍
+    public function fromat($media_id)
+    {
+        $client = new Client();
+        $url = 'https://api.weixin.qq.com/cgi-bin/media/get?access_token=' . $this->access_token . '&media_id=' . $media_id;
+        $format = $client->request('GET', $url)->getHeader('Content-disposition')[0];
+        $format = trim(substr($format, strpos($format, '.') + 1), '\"');
+        return '.' . $format;
+    }
 
-        //        file_put_contents('123/cat2.jpg',$img);
-
-
-        }
-            //微信下载视频
-        public    function video($media_id, $openid)
+    //微信下载图片
+    public function picture($media_id, $openid)
     {
         $access_token = $this->GetAccessToken();
         $url = "https://api.weixin.qq.com/cgi-bin/media/get?access_token=$access_token&media_id=$media_id";
@@ -218,37 +194,67 @@ class WeixinController extends Controller
 
         //保存图片
         $time = date('Ymd');
-        $wenjian = 'ziliao/video/' . $time . '/' . $openid . '/';
+        $wenjian = 'ziliao/image/' . $time . '/' . $openid . '/';
         if (!is_dir($wenjian)) {
             $res = mkdir($wenjian, 0777, true);
         }
         file_put_contents($wenjian . '/' . $name, $img);
-        return "下载成功";
+        return "$url";
 
         //        file_put_contents('123/cat2.jpg',$img);
 
 
     }
-             //微信下载语言
-        public  function voice($media_id,$openid){
-            $access_token = $this->GetAccessToken();
-            $url = "https://api.weixin.qq.com/cgi-bin/media/get?access_token=$access_token&media_id=$media_id";
-            //下载图片
-            $img = file_get_contents($url);
-            //图片名称
-            $name = $this->fromat($media_id);
-            $name = date('YmdHis') . rand(10000, 99999) . $name;
-            //
 
-            //保存图片
-            $time = date('Ymd');
-            $wenjian = 'ziliao/voice/' . $time . '/' . $openid . '/';
-            if (!is_dir($wenjian)) {
-                $res = mkdir($wenjian, 0777, true);
-            }
-            file_put_contents($wenjian . '/' . $name, $img);
-            return "下载成功";
+    //微信下载视频
+    public function video($media_id, $openid){
+        $access_token = $this->GetAccessToken();
+        $url = "https://api.weixin.qq.com/cgi-bin/media/get?access_token=$access_token&media_id=$media_id";
+        //下载视频
+        $img = file_get_contents($url);
+        //视频名称
+        $name = $this->fromat($media_id);
+        $name = date('YmdHis') . rand(10000, 99999) . $name;
+        //
 
+        //保存视频
+        $time = date('Ymd');
+        $wenjian = 'ziliao/video/' . $time . '/' . $openid . '/';
+        if (!is_dir($wenjian)) {
+            $res = mkdir($wenjian, 0777, true);
         }
+
+file_put_contents($wenjian . '/' . $name, $img);
+        return "$url";
+
+//        file_put_contents('123/cat2.jpg',$img);
+
+
+}
+
+    //微信下载语言
+    public  function voice($media_id, $openid)
+    {
+        $access_token = $this->GetAccessToken();
+        $url = "https://api.weixin.qq.com/cgi-bin/media/get?access_token=$access_token&media_id=$media_id";
+        //下载语言
+        $img = file_get_contents($url);
+        //名称
+        $name = $this->fromat($media_id);
+        $name = date('YmdHis') . rand(10000, 99999) . $name;
+        //
+
+        //保存图片
+        $time = date('Ymd');
+        $wenjian = 'ziliao/voice/' . $time . '/' . $openid . '/';
+        if (!is_dir($wenjian)) {
+            $res = mkdir($wenjian, 0777, true);
+        }
+        file_put_contents($wenjian . '/' . $name, $img);
+        return "$url";
+
+
+    }
+
 
 }
