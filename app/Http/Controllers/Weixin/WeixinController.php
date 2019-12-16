@@ -87,11 +87,11 @@ class WeixinController extends Controller
                 ];
                 $u = WxUserModel::where(['openid' => $openid])->first();
                 if ($u) {
-                    $this->huifu($xml_obj, 3, $userInfo['nickname'],0);
+                    $this->huifu($xml_obj, 3, $userInfo['nickname']);
                 } else {
                     //入库
                     $uid = WxUserModel::insertGetId($user_data);
-                    $this->huifu($xml_obj, 2, $userInfo['nickname'],0);
+                    $this->huifu($xml_obj, 2, $userInfo['nickname']);
                 }
             }
             //判断格式图片
@@ -144,7 +144,7 @@ class WeixinController extends Controller
     }
 
     //给用户发送消息
-    public function huifu($xml_obj, $code, $nickname,$res="0")
+    public function huifu($xml_obj, $code, $nickname,$res="")
     {
         $time = time();
         $touser = $xml_obj->FromUserName;  //接受用户的openid
