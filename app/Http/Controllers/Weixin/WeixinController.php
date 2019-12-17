@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Weixin;
 
 use App\Http\Controllers\Controller;
+use App\Model\WxLiuyanModel;
 use App\Model\WxUserModel;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Http\Request;
@@ -124,8 +125,14 @@ class WeixinController extends Controller
 
             //文字消息
         } elseif ($xml_obj->MsgType == 'text') {
-
             $this->huifu($xml_obj, 1, $userInfo['nickname']);
+            $user_data = [
+                'openid' => $openid,
+                'content' => $xml_obj->Content,
+            ];
+            WxLiuyanModel::insert($user_data);
+
+
 
         }
 
