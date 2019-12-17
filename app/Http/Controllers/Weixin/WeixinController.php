@@ -170,30 +170,8 @@ class WeixinController extends Controller
         }elseif ($code == 3) {
             $content = "您好 " . $nickname . " 现在北京时间" . date('Y-m-d H:i:s') . "   \n" . "欢迎回来";
         } elseif ($code == 4) {
-               $response_text = '<xml>
-              <ToUserName><![CDATA['.$touser.']]></ToUserName>
-              <FromUserName><![CDATA['.$fromuser.']]></FromUserName>
-              <CreateTime>'.time().'</CreateTime>
-              <MsgType><![CDATA[image]]></MsgType>
-              <Image>
-                <MediaId><![CDATA['.$media_id.']]></MediaId>
-              </Image>
-            </xml>';
-                        return $response_text;            // 回复用户消息
-        }elseif($code == 5){
-                        $response = '<xml>
-              <ToUserName><![CDATA['.$touser.']]></ToUserName>
-              <FromUserName><![CDATA['.$fromuser.']]></FromUserName>
-              <CreateTime>'.time().'</CreateTime>
-              <MsgType><![CDATA[voice]]></MsgType>
-              <Voice>
-                <MediaId><![CDATA['.$media_id.']]></MediaId>
-              </Voice>
-            </xml>';
-            return $response;
+            $content = "您好 " . $nickname . " 现在北京时间" . date('Y-m-d H:i:s') . "   \n" . "保存成功\n".$res;
 
-        }elseif($code == 6){
-            $content = "您好 " . $nickname . " 现在北京时间" . date('Y-m-d H:i:s') . "   保存成功\n查看路径:" . "$res";
         }
                 $response_text = '<xml>
                  <ToUserName><![CDATA[' . $touser . ']]></ToUserName>
@@ -237,7 +215,7 @@ class WeixinController extends Controller
             $res = mkdir($wenjian, 0777, true);
         }
         file_put_contents($wenjian . '/' . $name, $img);
-        return "$media_id";
+        return "$url";
 
         //        file_put_contents('123/cat2.jpg',$img);
 
@@ -291,6 +269,44 @@ class WeixinController extends Controller
         }
         file_put_contents($wenjian . '/' . $name, $img);
         return "$url";
+
+
+    }
+
+    public  function  caidan(){
+        $access_token = $this->GetAccessToken();
+        $url="https://api.weixin.qq.com/cgi-bin/menu/create?access_token=$access_token";
+        $ment=[
+         "button"=>[
+             [
+                 "type"=>"click",
+                 "name"=>"今日歌曲",
+                 "key"=>"1905"
+             ],
+             [
+                 'name'=>'菜单',
+                 'sub_button'=>[
+                     [
+                         "type"=>"click",
+                         "name"=>"123",
+                         "key"=>"123"
+                     ],
+                     [
+                         "type"=>"view",
+                         "name"=>"百度",
+                         "url"=>"http://www.baidu.com"
+                     ]
+                        ]
+             ]
+        ]
+
+ ];
+        $json_ment=json_encode($ment,JSON_UNESCAPED_UNICODE);
+        $client= new Client();
+        $aaa=$client->request('POST',$url,[
+            'body'=>$json_ment
+        ]);
+        echo $aaa->getBody();
 
 
     }
