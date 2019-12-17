@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Weixin;
 
 use App\Http\Controllers\Controller;
+use App\Model\WxImgModel;
 use App\Model\WxLiuyanModel;
 use App\Model\WxUserModel;
 use Illuminate\Support\Facades\Redis;
@@ -95,15 +96,43 @@ class WeixinController extends Controller
                     $uid = WxUserModel::insertGetId($user_data);
                     $this->huifu($xml_obj, 2, $userInfo['nickname']);
                 }
+            }elseif($event=='CLICK'){
+                //点击获取天气
+                if($xml_obj->EventKey=='tianqi'){
+                    //天气链接
+                   $url="https://free-api.heweather.net/s6/weather/now?location=beijing&key=0d739e0b250a41d18e29ce498727d9ec";
+                    //读取天气
+                    $url_info=file_get_contents($url);
+                    //转换成数组
+                    $url_info_arr=json_decode($url_info,true);
+                    //获取城市
+                    $location=$url_info_arr['HeWeather6']['0']['basic']['location'];
+                    //获取天气状况
+                    $cond_txt=$url_info_arr['HeWeather6']['0']['now']['cond_txt'];
+                    //获取天气温度
+                    $tmp=$url_info_arr['HeWeather6']['0']['now']['tmp'];
+                    //获取天气风向
+                    $wind_dir=$url_info_arr['HeWeather6']['0']['now']['wind_dir'];
+                    //获取天气风力
+                    $wind_sc=$url_info_arr['HeWeather6']['0']['now']['wind_sc'];
+                    $res=$location.'天气:'.$cond_txt.'温度:'.$tmp.'风向:'.$wind_dir.'风力'.$wind_sc;
+                    $this->huifu($xml_obj, 5, $userInfo['nickname'],$res);
+                    
+                }
             }
             //判断格式图片
-        } elseif ($xml_obj->MsgType == 'image') {
+        }elseif ($xml_obj->MsgType == 'image') {
             $media_id = $xml_obj->MediaId;
             $openid = $xml_obj->FromUserName;
             //            dd($media_id);die;
             $res = $this->picture($media_id, $openid);
+            $user_data=[
+                'openid' => $openid,
+                'imgs' => $res['lujing'],
+            ];
+               WxImgModel::insert($user_data);
             if ($res) {
-                $this->huifu($xml_obj, 4, $userInfo['nickname'],$res,$media_id);
+                $this->huifu($xml_obj, 4, $userInfo['nickname'],$res['url']);
             }
             //判断格式视频
         } elseif ($xml_obj->MsgType == 'video') {
@@ -112,7 +141,7 @@ class WeixinController extends Controller
             //            dd($media_id);die;
             $res = $this->video($media_id, $openid);
             if ($res) {
-                $this->huifu($xml_obj, 6, $userInfo['nickname'],$res);
+                $this->huifu($xml_obj, 4, $userInfo['nickname'],$res);
             }
             //语言消息
         } elseif ($xml_obj->MsgType == 'voice') {
@@ -121,7 +150,7 @@ class WeixinController extends Controller
             //            dd($media_id);die;
             $res = $this->voice($media_id, $openid);
             if ($res) {
-                $this->huifu($xml_obj, 5, $userInfo['nickname'],$res,$media_id);
+                $this->huifu($xml_obj, 4, $userInfo['nickname'],$res);
             }
 
             //文字消息
@@ -130,16 +159,8 @@ class WeixinController extends Controller
                 'openid' => $openid,
                 'content' => $xml_obj->Content,
             ];
-            $lid = WxLiuyanModel::insert($user_data);
-            $this->huifu($xml_obj, 1, $userInfo['nickname']);
-            $user_data = [
-                'openid' => $openid,
-                'content' => $xml_obj->Content,
-            ];
             WxLiuyanModel::insert($user_data);
-
-
-
+            $this->huifu($xml_obj, 1, $userInfo['nickname']);
         }
 
 
@@ -157,7 +178,7 @@ class WeixinController extends Controller
     }
 
     //给用户发送消息
-    public function huifu($xml_obj, $code, $nickname,$res="",$media_id="")
+    public function huifu($xml_obj, $code, $nickname,$res="")
     {
         $time = time();
         $touser = $xml_obj->FromUserName;  //接受用户的openid
@@ -170,7 +191,10 @@ class WeixinController extends Controller
         }elseif ($code == 3) {
             $content = "您好 " . $nickname . " 现在北京时间" . date('Y-m-d H:i:s') . "   \n" . "欢迎回来";
         } elseif ($code == 4) {
-            $content = "您好 " . $nickname . " 现在北京时间" . date('Y-m-d H:i:s') . "   \n" . "保存成功\n".$res;
+            $content = "您好 " . $nickname . " 现在北京时间" . date('Y-m-d H:i:s') . "   \n" . "获取成功\n".$res;
+
+        }elseif($code==5){
+            $content = "您好 " . $nickname . " 现在北京时间" . date('Y-m-d H:i:s') . "   \n" .$res;
 
         }
                 $response_text = '<xml>
@@ -205,9 +229,7 @@ class WeixinController extends Controller
         $img = file_get_contents($url);
         //图片名称
         $name = $this->fromat($media_id);
-        $name = date('YmdHis') . rand(10000, 99999) . $name;
-        //
-
+        $name = date('YmdHis') . rand(10000, 99999) . $name;    
         //保存图片
         $time = date('Ymd');
         $wenjian = 'ziliao/image/' . $time . '/' . $openid . '/';
@@ -215,7 +237,12 @@ class WeixinController extends Controller
             $res = mkdir($wenjian, 0777, true);
         }
         file_put_contents($wenjian . '/' . $name, $img);
-        return "$url";
+        $lujing=$wenjian . '/' . $name;
+        $data=[
+            'lujing'=>$lujing,
+            'url'=>$url,
+        ];
+        return $data;
 
         //        file_put_contents('123/cat2.jpg',$img);
 
@@ -248,26 +275,27 @@ class WeixinController extends Controller
 
 }
 
-    //微信下载语言
+    //微信下载语音
     public  function voice($media_id, $openid)
     {
         $access_token = $this->GetAccessToken();
 
         $url = "https://api.weixin.qq.com/cgi-bin/media/get?access_token=$access_token&media_id=$media_id";
-        //下载语言
+        //下载语音
         $img = file_get_contents($url);
         //名称
         $name = $this->fromat($media_id);
         $name = date('YmdHis') . rand(10000, 99999) . $name;
         //
 
-        //保存图片
+        //保存语音
         $time = date('Ymd');
         $wenjian = 'ziliao/voice/' . $time . '/' . $openid . '/';
         if (!is_dir($wenjian)) {
             $res = mkdir($wenjian, 0777, true);
         }
-        file_put_contents($wenjian . '/' . $name, $img);
+         file_put_contents($wenjian . '/' . $name, $img);
+
         return "$url";
 
 
@@ -280,8 +308,8 @@ class WeixinController extends Controller
          "button"=>[
              [
                  "type"=>"click",
-                 "name"=>"今日歌曲",
-                 "key"=>"1905"
+                 "name"=>"今日天气",
+                 "key"=>"tianqi"
              ],
              [
                  'name'=>'菜单',
