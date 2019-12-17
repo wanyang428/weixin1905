@@ -84,6 +84,7 @@ class WeixinController extends Controller
                     'openid' => $openid,
                     'sub_time' => $xml_obj->CreateTime,
                     'nickname' => $userInfo['nickname'],
+                    'headimgurl' => $userInfo['headimgurl'],
                     'sex' => $userInfo['sex']
                 ];
                 $u = WxUserModel::where(['openid' => $openid])->first();
@@ -102,7 +103,7 @@ class WeixinController extends Controller
             //            dd($media_id);die;
             $res = $this->picture($media_id, $openid);
             if ($res) {
-                $this->huifu($xml_obj, 4, $userInfo['nickname'],$res);
+                $this->huifu($xml_obj, 4, $userInfo['nickname'],$res,$media_id);
             }
             //判断格式视频
         } elseif ($xml_obj->MsgType == 'video') {
@@ -111,7 +112,7 @@ class WeixinController extends Controller
             //            dd($media_id);die;
             $res = $this->video($media_id, $openid);
             if ($res) {
-                $this->huifu($xml_obj, 4, $userInfo['nickname'],$res);
+                $this->huifu($xml_obj, 6, $userInfo['nickname'],$res);
             }
             //语言消息
         } elseif ($xml_obj->MsgType == 'voice') {
@@ -120,11 +121,19 @@ class WeixinController extends Controller
             //            dd($media_id);die;
             $res = $this->voice($media_id, $openid);
             if ($res) {
-                $this->huifu($xml_obj, 4, $userInfo['nickname'],$res);
+                $this->huifu($xml_obj, 5, $userInfo['nickname'],$res,$media_id);
             }
 
             //文字消息
         } elseif ($xml_obj->MsgType == 'text') {
+<<<<<<< HEAD
+=======
+            $user_data = [
+                'openid' => $openid,
+                'content' => $xml_obj->Content,
+            ];
+            $lid = WxLiuyanModel::insert($user_data);
+>>>>>>> 98d3df064c2ee7cf7114ece277eae758fefa11a9
             $this->huifu($xml_obj, 1, $userInfo['nickname']);
             $user_data = [
                 'openid' => $openid,
@@ -151,7 +160,7 @@ class WeixinController extends Controller
     }
 
     //给用户发送消息
-    public function huifu($xml_obj, $code, $nickname,$res="")
+    public function huifu($xml_obj, $code, $nickname,$res="",$media_id="")
     {
         $time = time();
         $touser = $xml_obj->FromUserName;  //接受用户的openid
@@ -164,17 +173,42 @@ class WeixinController extends Controller
         }elseif ($code == 3) {
             $content = "您好 " . $nickname . " 现在北京时间" . date('Y-m-d H:i:s') . "   \n" . "欢迎回来";
         } elseif ($code == 4) {
+               $response_text = '<xml>
+              <ToUserName><![CDATA['.$touser.']]></ToUserName>
+              <FromUserName><![CDATA['.$fromuser.']]></FromUserName>
+              <CreateTime>'.time().'</CreateTime>
+              <MsgType><![CDATA[image]]></MsgType>
+              <Image>
+                <MediaId><![CDATA['.$media_id.']]></MediaId>
+              </Image>
+            </xml>';
+                        return $response_text;            // 回复用户消息
+        }elseif($code == 5){
+                        $response = '<xml>
+              <ToUserName><![CDATA['.$touser.']]></ToUserName>
+              <FromUserName><![CDATA['.$fromuser.']]></FromUserName>
+              <CreateTime>'.time().'</CreateTime>
+              <MsgType><![CDATA[voice]]></MsgType>
+              <Voice>
+                <MediaId><![CDATA['.$media_id.']]></MediaId>
+              </Voice>
+            </xml>';
+            return $response;
+
+        }elseif($code == 6){
             $content = "您好 " . $nickname . " 现在北京时间" . date('Y-m-d H:i:s') . "   保存成功\n查看路径:" . "$res";
         }
+                $response_text = '<xml>
+                 <ToUserName><![CDATA[' . $touser . ']]></ToUserName>
+                 <FromUserName><![CDATA[' . $fromuser . ']]></FromUserName>
+                 <CreateTime>' . $time . '</CreateTime>
+                   <MsgType><![CDATA[text]]></MsgType>
+                <Content><![CDATA[' . $content . ']]></Content>
+              </xml>';
+           echo $response_text;            // 回复用户消息
 
-        $response_text = '<xml>
-              <ToUserName><![CDATA[' . $touser . ']]></ToUserName>
-              <FromUserName><![CDATA[' . $fromuser . ']]></FromUserName>
-              <CreateTime>' . $time . '</CreateTime>
-              <MsgType><![CDATA[text]]></MsgType>
-              <Content><![CDATA[' . $content . ']]></Content>
-            </xml>';
-        echo $response_text;            // 回复用户消息
+
+
     }
 
     //获取文件后辍
@@ -206,7 +240,7 @@ class WeixinController extends Controller
             $res = mkdir($wenjian, 0777, true);
         }
         file_put_contents($wenjian . '/' . $name, $img);
-        return "$url";
+        return "$media_id";
 
         //        file_put_contents('123/cat2.jpg',$img);
 
@@ -231,7 +265,7 @@ class WeixinController extends Controller
             $res = mkdir($wenjian, 0777, true);
         }
 
-file_put_contents($wenjian . '/' . $name, $img);
+        file_put_contents($wenjian . '/' . $name, $img);
         return "$url";
 
 //        file_put_contents('123/cat2.jpg',$img);
@@ -243,6 +277,7 @@ file_put_contents($wenjian . '/' . $name, $img);
     public  function voice($media_id, $openid)
     {
         $access_token = $this->GetAccessToken();
+
         $url = "https://api.weixin.qq.com/cgi-bin/media/get?access_token=$access_token&media_id=$media_id";
         //下载语言
         $img = file_get_contents($url);

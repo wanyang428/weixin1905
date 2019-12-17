@@ -28,12 +28,21 @@ class WxUserController extends AdminController
 
         $grid->column('uid', __('Uid'));
         $grid->column('openid', __('Openid'));
+<<<<<<< HEAD
         $grid->column('headimgurl', __('Headimgurl'))->display(function($img){
             return '<img src="'.$img.'">';
         });
         $grid->column('sub_time', __('Sub time'))->display(function($time){
             return date('Y-m-d H:i:s',$time);
         });
+=======
+        $grid->column('sub_time', __('Sub time'))->display(function($time){
+            return date('Y-m-d H:i:s',$time);
+        });
+        $grid->column('headimgurl', __('headimgurl'))->display(function($img){
+            return '<img src="'.$img.'">';
+        });;
+>>>>>>> 98d3df064c2ee7cf7114ece277eae758fefa11a9
         $grid->column('sex', __('Sex'));
         $grid->column('nickname', __('Nickname'));
         $grid->column('created_at', __('Created at'));
@@ -54,8 +63,13 @@ class WxUserController extends AdminController
 
         $show->field('uid', __('Uid'));
         $show->field('openid', __('Openid'));
+<<<<<<< HEAD
         $show->field('headimgurl', __('Headimgurl'));
         $show->field('sub_time', __('Sub time'));
+=======
+        $show->field('sub_time', __('Sub time'));
+        $show->field('headimgurl', __('headimgurl'));
+>>>>>>> 98d3df064c2ee7cf7114ece277eae758fefa11a9
         $show->field('sex', __('Sex'));
         $show->field('nickname', __('Nickname'));
         $show->field('created_at', __('Created at'));
@@ -74,7 +88,10 @@ class WxUserController extends AdminController
         $form = new Form(new WxUserModel);
 
         $form->text('openid', __('Openid'));
+<<<<<<< HEAD
         $form->text('headimgurl', __('Headimgurl'));
+=======
+>>>>>>> 98d3df064c2ee7cf7114ece277eae758fefa11a9
         $form->number('sub_time', __('Sub time'));
         $form->switch('sex', __('Sex'));
         $form->text('nickname', __('Nickname'));
