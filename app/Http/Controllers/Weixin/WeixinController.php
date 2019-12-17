@@ -126,14 +126,11 @@ class WeixinController extends Controller
 
             //文字消息
         } elseif ($xml_obj->MsgType == 'text') {
-<<<<<<< HEAD
-=======
             $user_data = [
                 'openid' => $openid,
                 'content' => $xml_obj->Content,
             ];
             $lid = WxLiuyanModel::insert($user_data);
->>>>>>> 98d3df064c2ee7cf7114ece277eae758fefa11a9
             $this->huifu($xml_obj, 1, $userInfo['nickname']);
             $user_data = [
                 'openid' => $openid,
