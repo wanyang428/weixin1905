@@ -39,7 +39,7 @@ class WeixinController extends Controller
     //接入微信
     public function wx()
     {
-        $token = '90d162aa1f38ee74a8a7041bd2201ba4';
+        $token = 'f7a59b4da92053433eaef97f9138079d';
         $signature = $_GET["signature"];
         $timestamp = $_GET["timestamp"];
         $nonce = $_GET["nonce"];
@@ -229,7 +229,7 @@ class WeixinController extends Controller
         $img = file_get_contents($url);
         //图片名称
         $name = $this->fromat($media_id);
-        $name = date('YmdHis') . rand(10000, 99999) . $name;    
+        $name = date('YmdHis') . rand(10000, 99999) . $name;
         //保存图片
         $time = date('Ymd');
         $wenjian = 'ziliao/image/' . $time . '/' . $openid . '/';
