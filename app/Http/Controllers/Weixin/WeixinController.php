@@ -115,9 +115,9 @@ class WeixinController extends Controller
                     $wind_dir=$url_info_arr['HeWeather6']['0']['now']['wind_dir'];
                     //获取天气风力
                     $wind_sc=$url_info_arr['HeWeather6']['0']['now']['wind_sc'];
-                    $res=$location.'天气:'.$cond_txt.'温度:'.$tmp.'风向:'.$wind_dir.'风力'.$wind_sc;
+                    $res=$location.' 天气:'.$cond_txt.' 温度:'.$tmp."\n".' 风向:'.$wind_dir.' 风力'.$wind_sc;
                     $this->huifu($xml_obj, 5, $userInfo['nickname'],$res);
-                    
+
                 }
             }
             //判断格式图片
