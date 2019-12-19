@@ -326,7 +326,7 @@ class WeixinController extends Controller
                      [
                          "type"=>"view",
                          "name"=>"投票",
-                         "url"=>'https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx587f9c1e833b158c&redirect_uri='.$redirect_uri.'&response_type=code&scope=snsapi_userinfo&state=ABCD1905#wechat_redirect'
+                         "url"=>'https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx587f9c1e833b158c&redirect_uri='.$redirect_uri.'&response_type=code&scope=snsapi_userinfo&state=ABCD1905#wechat_redirect',
                      ]
 
                  ]
@@ -336,6 +336,7 @@ class WeixinController extends Controller
  ];
         $json_ment=json_encode($ment,JSON_UNESCAPED_UNICODE);
 //        echo 1;
+        print_r($ment);
         $client= new Client();
         $aaa=$client->request('POST',$url,[
             'body'=>$json_ment

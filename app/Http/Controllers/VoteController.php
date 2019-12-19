@@ -16,6 +16,12 @@ class VoteController extends Controller
      $data = $this->getAccessToken($code);
      //获取用户信息
         $user_info = $this->getUserInfo($data['access_token'],$data['openid']);
+
+
+        //处理业务逻辑
+        $redis_key = 'vote';
+        $number = Redis::incr($redis_key);
+        echo "投票成功,当前票数：".$number;
     }
         /**
         根据code 获取access_token
@@ -35,7 +41,11 @@ class VoteController extends Controller
     {
         $url = 'https://api.weixin.qq.com/sns/userinfo?access_token='.$access_token.'&openid='.$openid.'&lang=zh_CN';
         $json_data = file_get_contents($url);
-        $user_info = json_decode($json_data,true);
-        echo '<pre>';print_r($user_info);echo '<pre>';
+        $data = json_decode($json_data,true);
+       if(isset($data['errcode'])){
+           //TOOO  错误处理
+           die ("出错了    40001");    //  40001错误标识  获取用户信息失败
+       }
+       return $data;            //返回用户信息
     }
 }
