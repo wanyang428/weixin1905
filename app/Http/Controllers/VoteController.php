@@ -3,25 +3,44 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redis;
 
 class VoteController extends Controller
 {
     public function index(){
-        echo __METHOD__;
-   echo '<pre>';print_r($_GET);echo '</pre>';
+//        echo __METHOD__;
+//   echo '<pre>';print_r($_GET);echo '</pre>';
 
    $code = $_GET['code'];
 
     //获取access_token
      $data = $this->getAccessToken($code);
      //获取用户信息
-        $user_info = $this->getUserInfo($data['access_token'],$data['openid']);
+        $info = $this->getUserInfo($data['access_token'],$data['openid']);
 
 
-        //处理业务逻辑
-        $redis_key = 'vote';
-        $number = Redis::incr($redis_key);
-        echo "投票成功,当前票数：".$number;
+        $keys='h:info'.$info['openid'];
+        Redis::hMset($keys,$info);
+        $key='vote:1905wx';
+        if(Redis::zrank($key,$info['openid'])){
+            echo "已经投过票了";echo '</br>';
+        }else{
+            Redis::zadd($key,time(),$info['openid']);
+            echo "投票成功";
+            echo '</br>';
+        }
+        $total = Redis::zCard($key);        // 获取总数
+        echo '投票总人数： '.$total;echo '</br>';
+        $members = Redis::zRange($key,0,-1,true);       // 获取所有投票人的openid
+//        echo '<pre>';print_r($members);echo '</pre>';
+        foreach($members as $k=>$v){
+//            echo "用户： ".$k . ' 投票时间: '. date('Y-m-d H:i:s',$v);echo '</br>';
+            $u_k = 'h:info'.$k;
+            $u = Redis::hgetAll($u_k);
+            //$u = Redis::hMget($u_k,['openid','nickname','sex','headimgurl']);
+//            echo ' <img src="'.$u['headimgurl'].'"> ';
+            echo '<img src="'.Redis::hget('h:info'.$k,'headimgurl').'">';
+        }
     }
         /**
         根据code 获取access_token
