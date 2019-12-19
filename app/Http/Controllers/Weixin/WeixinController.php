@@ -303,7 +303,7 @@ class WeixinController extends Controller
     public  function  caidan(){
 
         $url = 'http://1905wanyang.comcto.com/vote';
-        $url2 = 'http://1905wanyang.comcto.com/vote';
+        $url2 = 'http://1905wanyang.comcto.com/';
         $redirect_uri = urlencode($url);
         $redirect_uri2 = urlencode($url2);
         $access_token = $this->GetAccessToken();
