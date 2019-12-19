@@ -32,7 +32,7 @@
     </div>
     <!-- end site brand	 -->
     <div class="side-nav-panel-right">
-
+        <img src="{{$u['headimgurl']}}" alt="">
     </div>
 </div>
 <!-- end navbar top -->

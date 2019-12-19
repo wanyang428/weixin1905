@@ -303,7 +303,9 @@ class WeixinController extends Controller
     public  function  caidan(){
 
         $url = 'http://1905wanyang.comcto.com/vote';
+        $url2 = 'http://1905wanyang.comcto.com/vote';
         $redirect_uri = urlencode($url);
+        $redirect_uri2 = urlencode($url2);
         $access_token = $this->GetAccessToken();
         $url="https://api.weixin.qq.com/cgi-bin/menu/create?access_token=".$this->access_token;
 
@@ -327,7 +329,12 @@ class WeixinController extends Controller
                          "type"=>"view",
                          "name"=>"投票",
                          "url"=>'https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx587f9c1e833b158c&redirect_uri='.$redirect_uri.'&response_type=code&scope=snsapi_userinfo&state=ABCD1905#wechat_redirect',
-                     ]
+                     ],
+                     [
+                         "type"=>"view",
+                         "name"=>"商城",
+                         "url"=>'https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx587f9c1e833b158c&redirect_uri='.$redirect_uri2.'&response_type=code&scope=snsapi_userinfo&state=ABCD1905#wechat_redirect',
+                     ],
 
                  ]
              ]
