@@ -300,10 +300,14 @@ class WeixinController extends Controller
 
 
     }
-
     public  function  caidan(){
+
+        $url = 'http://1905wanyang.comcto.com/vote';
+        $redirect_uri = urlencode($url);
         $access_token = $this->GetAccessToken();
-        $url="https://api.weixin.qq.com/cgi-bin/menu/create?access_token=$access_token";
+        $url="https://api.weixin.qq.com/cgi-bin/menu/create?access_token=".$this->access_token;
+
+
         $ment=[
          "button"=>[
              [
@@ -321,19 +325,22 @@ class WeixinController extends Controller
                      ],
                      [
                          "type"=>"view",
-                         "name"=>"百度",
-                         "url"=>"http://www.baidu.com"
+                         "name"=>"投票",
+                         "url"=>'https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx587f9c1e833b158c&redirect_uri='.$redirect_uri.'&response_type=code&scope=snsapi_userinfostate=ABCD1905#wechat_redirect'
                      ]
-                        ]
+
+                 ]
              ]
         ]
 
  ];
         $json_ment=json_encode($ment,JSON_UNESCAPED_UNICODE);
+//        echo 1;
         $client= new Client();
         $aaa=$client->request('POST',$url,[
             'body'=>$json_ment
         ]);
+//        print_r($aaa);
         echo $aaa->getBody();
 
 
