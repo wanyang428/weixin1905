@@ -27,11 +27,11 @@ class GoodsController extends AdminController
         $grid = new Grid(new GoodsModel);
 
         $grid->column('id', __('Id'));
-        $grid->column('goos_name', __('Goos name'));
-        $grid->column('img', __('Img'));
+        $grid->column('goods_name', __('Goods name'));
+        $grid->column('img', __('Img'))->image();
         $grid->column('price', __('Price'));
         $grid->column('created_at', __('Created at'));
-        $grid->column('updata_at', __('Updata at'));
+        $grid->column('updated_at', __('Updated at'));
 
         return $grid;
     }
@@ -47,11 +47,11 @@ class GoodsController extends AdminController
         $show = new Show(GoodsModel::findOrFail($id));
 
         $show->field('id', __('Id'));
-        $show->field('goos_name', __('Goos name'));
+        $show->field('goods_name', __('Goods name'));
         $show->field('img', __('Img'));
         $show->field('price', __('Price'));
         $show->field('created_at', __('Created at'));
-        $show->field('updata_at', __('Updata at'));
+        $show->field('updated_at', __('Updated at'));
 
         return $show;
     }
@@ -65,10 +65,10 @@ class GoodsController extends AdminController
     {
         $form = new Form(new GoodsModel);
 
-        $form->text('goos_name', __('Goos name'));
+        $form->text('goods_name', __('Goods name'));
         $form->image('img', __('Img'));
         $form->number('price', __('Price'));
-        $form->datetime('updata_at', __('Updata at'))->default(date('Y-m-d H:i:s'));
+        $form->datetime('updated_at', __('Updated at'))->default(date('Y-m-d H:i:s'));
 
         return $form;
     }
