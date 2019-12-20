@@ -15,7 +15,7 @@ class IndexController extends Controller
         //判断用户是否已存在
 
         $openid = $data['openid'];
-        $u= WxUserModel::where(['openid=>$openid'])->first();
+        $u= WxUserModel::where(['openid'=>$openid])->first();
         if($u){   //用户已存在
             $user_info = $u->toArray();
         }else{
