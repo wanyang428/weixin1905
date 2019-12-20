@@ -15,6 +15,8 @@ Route::group([
     $router->resource('msg', WxLiuyanController::class);
     $router->resource('img', WxImgController::class);
 
+    $router->resource('goods', GoodsController::class);//商品管理
+
 
 
 });

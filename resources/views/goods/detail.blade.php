@@ -595,13 +595,9 @@
             <h6>Mstore</h6>
             <p>is a lorem ipsum dolor sit amet, consectetur adipisicing elit consectetur adipisicing elit.</p>
         </div>
-        <div class="social-media">
-            <a href=""><i class="fa fa-facebook"></i></a>
-            <a href=""><i class="fa fa-twitter"></i></a>
-            <a href=""><i class="fa fa-google"></i></a>
-            <a href=""><i class="fa fa-linkedin"></i></a>
-            <a href=""><i class="fa fa-instagram"></i></a>
-        </div>
+    <div class="social-media">
+        <a href=""><i class="fa fa-facebook"></i></a>
+        <a href=""><i class="fa fa-twitter"></i></a>
         <div class="copyright">
             <span>© 2017 All Right Reserved</span>
         </div>
@@ -612,6 +608,10 @@
 <!-- scripts -->
 <script src="/js/jquery.min.js"></script>
 <script src="/js/materialize.min.js"></script>
+<a href=""><i class="fa fa-google"></i></a>
+<a href=""><i class="fa fa-linkedin"></i></a>
+<a href=""><i class="fa fa-instagram"></i></a>
+</div>
 <script src="/js/owl.carousel.min.js"></script>
 <script src="/js/fakeLoader.min.js"></script>
 <script src="/js/animatedModal.min.js"></script>
