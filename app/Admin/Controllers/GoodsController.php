@@ -68,6 +68,7 @@ class GoodsController extends AdminController
         $form->text('goods_name', __('Goods name'));
         $form->image('img', __('Img'));
         $form->number('price', __('Price'));
+        $form->ckeditor('desc');
         $form->datetime('updated_at', __('Updated at'))->default(date('Y-m-d H:i:s'));
 
         return $form;
