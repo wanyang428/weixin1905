@@ -22,6 +22,9 @@ Route::post('/wx','Weixin\WeixinController@receiv');
 Route::get('/wx/picture','Weixin\WeixinController@picture');
 Route::get('/caidan','Weixin\WeixinController@caidan');
 
+// 获取token
+Route::get('/token','Weixin\WeixinController@GetAccessToken');
+
 
 /*微信公众号*/
 Route::get('/vote','VoteController@index'); //微信投票
